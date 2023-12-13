@@ -31,14 +31,21 @@ module.exports = async function (context, myTimer) {
   }
 
   try {
-    const [newProducts, removedProducts] = await scrapeSite(products);
+    const [newProducts, removedProducts, updatedProducts] = await scrapeSite(
+      products
+    );
+
     for (const product of newProducts) {
       await client.createEntity(product);
     }
 
-    // for (const product of removedProducts) {
-    //   await client.upsertEntity({ ...product, removed: true });
-    // }
+    for (const product of removedProducts) {
+      await client.deleteEntity(product.productCode, product.rowKey);
+    }
+
+    for (const product of updatedProducts) {
+      await client.updateEntity(product);
+    }
   } catch (err) {
     if (typeof err === "string") console.error(err);
     else {
@@ -47,5 +54,5 @@ module.exports = async function (context, myTimer) {
     throw err;
   }
 
-  context.log("JavaScript timer trigger function ran!", timeStamp);
+  context.log("Exit success", timeStamp);
 };
