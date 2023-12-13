@@ -89,10 +89,15 @@ const scrapeSite = async (products) => {
         (p) => p.productCode === foundProduct.productCode
       );
       if (existingProduct.price !== foundProduct.price) {
-        products = products.filter(
-          (p) => p.productCode !== existingProduct.productCode
-        );
-        updatedProducts.push(foundProduct);
+        updatedProducts.push({
+          ...existingProduct,
+          previousPrice: existingProduct.price,
+          price: foundProduct.price,
+          updatedOnUtc: new Date().toISOString(),
+          updatedCount: existingProduct.updatedCount
+            ? existingProduct.updatedCount + 1
+            : 1,
+        });
       }
     }
   }
